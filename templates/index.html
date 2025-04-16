@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plant Prediction</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #d7f0e3, #e0f7fa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      max-width: 550px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #00796B;
+      font-size: 28px;
+    }
+
+    #uploadForm {
+      border: 2px dashed #80cbc4;
+      padding: 25px;
+      border-radius: 15px;
+      background-color: #f1fdfc;
+      transition: background-color 0.3s;
+    }
+
+    #uploadForm:hover {
+      background-color: #e0f7fa;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      font-size: 16px;
+      border: none;
+      background-color: #ffffff;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      background-color: #00796B;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    #loading {
+      margin-top: 20px;
+      color: #555;
+      font-style: italic;
+    }
+
+    #result {
+      display: none;
+      margin-top: 30px;
+      text-align: left;
+      background: #e8f5e9;
+      border-left: 6px solid #43a047;
+      padding: 20px 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    #result h3 {
+      color: #2e7d32;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    #result p {
+      margin: 10px 0;
+      font-size: 17px;
+      color: #333;
+    }
+
+    #result span {
+      font-weight: bold;
+      color: #1b5e20;
+    }
+
+    .icon {
+      margin-right: 10px;
+      color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌿 Plant Species & Flammability Predictor</h1>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="imageInput" name="image" accept="image/*" required>
+      <button type="submit">📤 Submit</button>
+    </form>
+
+    <div id="loading">🔄 Processing image...</div>
+
+    <div id="result">
+      <h3>📝 Prediction Result</h3>
+      <p><span class="icon">🌱</span><strong>Species:</strong> <span id="species"></span></p>
+      <p><span class="icon">🔥</span><strong>Flammability Score:</strong> <span id="flammability_score"></span></p>
+      <p><span class="icon">⚠️</span><strong>Flammability Level:</strong> <span id="flammability_level"></span></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("uploadForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData();
+      formData.append("image", document.getElementById("imageInput").files[0]);
+
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("result").style.display = "none";
+
+      fetch("/predict", {
+        method: "POST",
+        body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("result").style.display = "block";
+        document.getElementById("species").textContent = data.species || "N/A";
+        document.getElementById("flammability_score").textContent = data.flammability_score || "N/A";
+        document.getElementById("flammability_level").textContent = data.flammability_level || "N/A";
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("loading").style.display = "none";
+        alert("Something went wrong. Please try again.");
+      });
+    });
+  </script>
+</body>
+</html>
